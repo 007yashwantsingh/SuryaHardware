@@ -111,6 +111,19 @@ export default function App() {
     const otp = genOTP(); setPendingOTP(otp); setPendingPhone(authForm.phone); setAuthStep("signup-verify");
     toast2(`OTP: ${otp}  (Demo mode)`);
   };
+
+  const directSignup = () => {
+    setAuthErr("");
+    if (!authForm.name.trim()) { setAuthErr("Name required"); return; }
+    if (!/^[0-9]{10}$/.test(authForm.phone)) { setAuthErr("Valid 10-digit phone required"); return; }
+    if (authForm.password.length < 4) { setAuthErr("Password min 4 chars"); return; }
+    const users = LS.get("se_users") || {};
+    if (users[authForm.phone]) { setAuthErr("Phone already registered. Login instead."); return; }
+    const user = { name: authForm.name, phone: authForm.phone, address: "" };
+    users[authForm.phone] = { ...user, pwd: authForm.password };
+    LS.set("se_users", users);
+    loginUser(user);
+  };
   const verifySignupOTP = () => {
     setAuthErr(""); if (authForm.otp !== pendingOTP) { setAuthErr("Incorrect OTP"); return; }
     const users = LS.get("se_users") || {}; const user = { name: authForm.name, phone: pendingPhone, address: "" };
@@ -210,11 +223,11 @@ export default function App() {
                   </div>
                 ))}
                 {authErr && <div style={{ color: "#E24B4A", fontSize: 12, marginTop: 4 }}>{authErr}</div>}
-                <button onClick={sendSignupOTP} style={sbtn("#B84A1A", "#fff")}>Send OTP & Verify</button>
+                <button onClick={directSignup} style={sbtn("#B84A1A", "#fff")}>Create Account</button>
                 <button onClick={() => { setAuthStep("main"); setAuthErr(""); }} style={sbtn("none", "#888")}>Back</button>
               </div>
             )}
-            {authStep === "signup-verify" && <OTPBox onVerify={verifySignupOTP} onResend={() => { const o = genOTP(); setPendingOTP(o); toast2(`New OTP: ${o}`); }} label="Create Account" />}
+            
             {authStep === "forgot-step1" && (
               <div>
                 <p style={{ fontSize: 13, color: "#666", marginBottom: 14, lineHeight: 1.6 }}>Enter your registered phone number to receive an OTP for password reset.</p>
