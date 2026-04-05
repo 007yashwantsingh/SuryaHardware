@@ -97,7 +97,7 @@ export default function App() {
     loginUser({ name: u.name, phone: u.phone, address: u.address || "" });
   };
   const sendLoginOTP = () => {
-    setAuthErr(""; if (!/^[0-9]{10}$/.test(authForm.phone)) { setAuthErr("Valid 10-digit phone required"); return; }
+    setAuthErr(""); if (!/^[0-9]{10}$/.test(authForm.phone)) { setAuthErr("Valid 10-digit phone required"); return; }
     if (!(LS.get("se_users") || {})[authForm.phone]) { setAuthErr("Phone not registered. Sign up first."); return; }
     const otp = genOTP(); setPendingOTP(otp); setPendingPhone(authForm.phone); setAuthStep("otp-verify");
     toast2(`OTP: ${otp}  (Demo mode)`);
